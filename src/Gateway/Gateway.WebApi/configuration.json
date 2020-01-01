@@ -5,8 +5,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 60243
+          "Host": "{{TX_ENDPOINT_HOST}}",
+          "Port": {{TX_ENDPOINT_PORT}}
         }
       ],
       "UpstreamPathTemplate": "/account/balance",
@@ -21,8 +21,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 60243
+          "Host": "{{TX_ENDPOINT_HOST}}",
+          "Port": {{TX_ENDPOINT_PORT}}
         }
       ],
       "UpstreamPathTemplate": "/account/deposit",
@@ -37,8 +37,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 60243
+          "Host": "{{TX_ENDPOINT_HOST}}",
+          "Port": {{TX_ENDPOINT_PORT}}
         }
       ],
       "UpstreamPathTemplate": "/account/withdraw",
@@ -53,8 +53,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 54203
+          "Host": "{{ID_ENDPOINT_HOST}}",
+          "Port": {{ID_ENDPOINT_PORT}}
         }
       ],
       "UpstreamPathTemplate": "/user/authenticate",
