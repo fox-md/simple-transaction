@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
 
 # Copy sources
-COPY src/Services/Transaction/. /app/src/Services/Transaction
-COPY src/Frameworks/Transaction/. /app/src/Frameworks/Transaction
+COPY ../src/Services/Transaction/. /app/src/Services/Transaction
+COPY ../src/Frameworks/Transaction/. /app/src/Frameworks/Transaction
 
 WORKDIR /app/src/Services/Transaction
 
