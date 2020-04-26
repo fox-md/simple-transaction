@@ -1,0 +1,305 @@
+{
+	"info": {
+		"_postman_id": "2652dbb7-2995-4cf3-b224-3be09dd4a38d",
+		"name": "Simple Transaction - Api Gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authenticate user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2e248374-d070-4011-a8c5-39cb6b4b5e34",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"});",
+							"",
+							"pm.test(\"Should have auth_token in response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property(\"auth_token\");",
+							"    pm.environment.set(\"auth_token\", jsonData.auth_token);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Username\": \"speter\",\n\t\"Password\": \"test@123\"\n}"
+				},
+				"url": "{{Protocol}}://{{BaseHost}}:{{BasePort}}/user/authenticate"
+			},
+			"response": []
+		},
+		{
+			"name": "Check balance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "386a81cd-824d-432e-8258-bb631a299d03",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Should have expected properties\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"balance\");",
+							"    pm.expect(jsonData).to.have.property(\"currency\");",
+							"});",
+							"",
+							"pm.test(\"Validate currency\", function () {",
+							"    pm.expect(jsonData.currency).to.be.a('string');",
+							"    pm.expect(jsonData.currency).to.be.oneOf([\"USD\", \"EUR\"]);",
+							"});",
+							"",
+							"pm.test(\"Validate balance\", function () {",
+							"    pm.expect(jsonData.balance).to.be.a('number');",
+							"});",
+							"",
+							"pm.environment.set(\"currency\", jsonData.currency);",
+							"pm.environment.set(\"balance\", jsonData.balance);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"url": "{{Protocol}}://{{BaseHost}}:{{BasePort}}/account/balance"
+			},
+			"response": []
+		},
+		{
+			"name": "Deposit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1665512-52de-4632-b0bf-dc267d48a2de",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Should have expected properties\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"balance\");",
+							"});",
+							"",
+							"var expectedBalance = Number(pm.environment.get(\"balance\")) + Number(pm.environment.get(\"amount\"));",
+							"",
+							"pm.test(\"Check balance\", function () {",
+							"    var balanceData = jsonData.balance;",
+							"    pm.expect(balanceData).to.equal(expectedBalance);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": {{amount}},\r\n  \"currency\": \"{{currency}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{Protocol}}://{{BaseHost}}:{{BasePort}}/account/deposit"
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh balance after deposit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "386a81cd-824d-432e-8258-bb631a299d03",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Should have expected properties\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"balance\");",
+							"});",
+							"",
+							"pm.environment.set(\"balance\", jsonData.balance);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"url": "{{Protocol}}://{{BaseHost}}:{{BasePort}}/account/balance"
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea425824-e6dc-4d7e-bfaf-f8ec51f31fa1",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Should have expected properties\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"balance\");",
+							"});",
+							"",
+							"pm.test(\"Check balance\", function () {",
+							"    var balanceData = jsonData.balance;",
+							"    pm.expect(balanceData).to.equal(pm.environment.get(\"balance\")-pm.environment.get(\"amount\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": {{amount}},\n  \"currency\": \"{{currency}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{Protocol}}://{{BaseHost}}:{{BasePort}}/account/withdraw"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "09645f2e-6e10-44a9-ba84-f6be5fd4eb96",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "2dcf0484-ae89-4ea6-b63e-b81858d6d0c6",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
