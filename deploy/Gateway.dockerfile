@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
 WORKDIR /app
 
 # Copy everything else and build
-COPY ../src/Gateway/Gateway.WebApi/. ./
+COPY src/Gateway/Gateway.WebApi/. ./
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
@@ -12,9 +12,8 @@ ENV ID_ENDPOINT_HOST="localhost"
 ENV ID_ENDPOINT_PORT=54203
 ENV TX_ENDPOINT_HOST="localhost"
 ENV TX_ENDPOINT_PORT=60243
-COPY Gateway.entrypoint.sh /entrypoint.sh
+COPY deploy/Gateway.entrypoint.sh /entrypoint.sh
 WORKDIR /app
-#COPY publish/ .
 COPY --from=build-env /app/out .
 
 RUN chmod +x /entrypoint.sh && \
